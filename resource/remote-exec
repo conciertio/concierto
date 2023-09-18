@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+role="{{machine.role|name}}"
+
+composer=$(which docker-compose)
+opts=""
+
+if [ -z "$composer" ]
+then
+        composer=$(which podman-compose)
+fi
+
+if [ -z "$composer" ]
+then
+        composer="docker compose"
+fi
+
+{% if not access.docker.registry.tls-verify %}
+pull_args="--podman-pull-args 'tls-verify=false'"
+{% else %}
+pull_args=""
+{% endif %}
+
+$composer -f $role.yml $pull_args pull 
+$composer $opts -f $role.yml up --force-recreate --detach

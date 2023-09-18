@@ -1,0 +1,10 @@
+.clj-kondo
+.lsp
+.calva
+ concierto.jar
+.concierto/
+fiddles/
+docs/index.html
+docs/starter.html
+debug/
+manage

@@ -1,0 +1,83 @@
+Concierto 
+=========
+Starter Pack
+:toc: left
+:source-highlighter: highlight.js
+:highlightjs-languages: clojure,bash,dockerfile,yaml,nginx
+:doctype: book
+:description: Starter Pack
+:icons: font
+:toc: left
+:toclevels: 2
+:toc-collapsable:
+:sectlinks:
+
+== Overview
+
+This documentation describes the deployment of 2, 3 tier clusters using the Concierto orchestration tool. Each with a balancer, 3 api machines and a database.
+
+The two clusters east and west run:
+
+* 1 redis machine as the database
+* 3 api machines
+* 1 balancer machine
+
+The balancer is an nginx instance configured automatically to any number of API machines.
+The API machines are a simply python server which increment a key in redis.
+
+*It's assumed you've read some of the main https://www.conciert.io[Concierto documentation].* 
+
+[WARNING]
+This probably only works on Linux.
+
+== Install
+
+In a clean directory with concierto installed do ...
+
+    ./concierto starter-pack
+
+On answering 'y' you'll have the starter-pack demo available in the current directory.
+
+If babashka and https://documentation.ubuntu.com/lxd/en/latest/[lxd] are installed, then you should be able to
+
+    # setup of clusters
+    ./concierto demo lxd cluster-base-image
+    ./concierto demo lxd cluster-create west
+    ./concierto demo lxd cluster-create east
+    ./concierto demo registry create
+
+try 'lxc ls' to see all the machine instances. Then
+
+    # build and deploy
+    ./concierto build all --push
+    ./concierto deploy --select \ 
+            role db also \
+            role api also \
+            role balancer
+
+
+and you should get 2 3 tier clusters of 5 machines each.
+
+=== LXD Tips
+* LXD doesn't like Mullvad VPN. If you even have it installed LXD fails, it's a problem with Mullvad.
+* If you're running on Fedora move the lxdbr0 bridge to the trusted zone of your firewall.
+
+== Step By Step
+
+Where I go through the commands above ...
+
+=== Cluster Setup
+
+video::-l6Ea0ZEgsk[youtube,align=center]
+
+=== Access
+
+video::IvhrYHARDCs[youtube,align=center]
+
+=== Build and Push
+
+video::Orcpth3bMaI[youtube, align=center]
+
+=== Deploy
+
+video::5iTG-ySG61E[youtube,align=center]

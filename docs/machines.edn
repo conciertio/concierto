@@ -1,0 +1,10 @@
+({:role :api, :cluster "east", :ip "10.174.25.32", :host "east-api1"}
+ {:role :api, :cluster "east", :ip "10.174.25.187", :host "east-api2"}
+ {:role :api, :cluster "east", :ip "10.174.25.134", :host "east-api3"}
+ {:role :balancer, :cluster "east", :ip "10.174.25.36", :host "east-bal"}
+ {:role :db, :cluster "east", :ip "10.174.25.228", :host "east-db"}
+ {:role :api, :cluster "west", :ip "10.174.25.155", :host "west-api1"}
+ {:role :api, :cluster "west", :ip "10.174.25.170", :host "west-api2"}
+ {:role :api, :cluster "west", :ip "10.174.25.200", :host "west-api3"}
+ {:role :balancer, :cluster "west", :ip "10.174.25.9", :host "west-bal"}
+ {:role :db, :cluster "west", :ip "10.174.25.3", :host "west-db"})

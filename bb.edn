@@ -1,0 +1,10 @@
+{:paths ["src","resource"]
+ :deps {medley/medley {:mvn/version "1.3.0"}}
+ :tasks {:requires ([babashka.fs :as fs])
+
+         quickdoc {:doc "Invoke quickdoc"
+                   :extra-deps {io.github.borkdude/quickdoc {:git/sha "62dd3c6a828c3a5e61bae6ca80c8ba4781356a67"}}
+                   :task (exec 'quickdoc.api/quickdoc)
+                   :exec-args {:git/branch "master"
+                               :github/repo "https://github.com/clj-kondo/clj-kondo"
+                               :source-paths ["src/clj_kondo/core.clj"]}}}}

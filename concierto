@@ -1,0 +1,68 @@
+#!/usr/bin/env sh
+
+if [ -z "$(which bb 2>/dev/null)" ]
+then
+    echo
+    echo "Looks like you don't have babashka installed, do so with this on linux"
+    echo
+    echo "curl -sLO \"https://raw.githubusercontent.com/babashka/babashka/master/install\""
+    echo "chmod +x install"
+    echo "sudo ./install"
+    echo
+    echo "or on mac "
+    echo
+    echo "brew install borkdude/brew/babashka"
+    exit 1
+fi
+
+
+case $1 in
+
+update)
+    wget "https://www.conciert.io/release/concierto.jar" -O concierto.tempjar
+    if [ -e "concierto.tempjar" ]
+    then
+        if [ -e "concierto.jar" ]
+        then
+            ver="$(bb concierto.jar version)"
+            mv concierto.jar concierto-$ver.jar
+        fi
+        
+        mv concierto.tempjar concierto.jar
+    else
+        echo "Didn't download concierto.jar"
+    fi
+;;
+
+starter-pack)
+    wget "https://www.conciert.io/release/starter-pack.tar.gz"
+    if [ -e "starter-pack.tar.gz" ]
+    then
+        echo
+        read -p "I'm going to untar the starter-pack and remove the gz is this ok (y to proceed) ? " goahead
+        if [ "$goahead" = "y" ]
+        then
+            tar xzf starter-pack.tar.gz
+            rm starter-pack.tar.gz
+        fi
+    fi
+;;
+
+*)
+    if [ -e "concierto.jar" ]
+    then
+        bb concierto.jar "$@"
+    else
+        if [ -n "$CONCIERTO_HOME" ];
+        then
+            # for dev
+            bb --config $CONCIERTO_HOME/bb.edn -m concierto.cli "$@"
+        else
+            echo
+            echo "concierto.jar not found in this directory, or source in CONCIERTO_HOME env."
+            echo "'./concierto update' to get latest jar in this directory."
+        fi
+    fi
+;;
+
+esac

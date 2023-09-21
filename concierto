@@ -15,20 +15,31 @@ then
     exit 1
 fi
 
+if [ -n "$CONCIERTO_APP" ]
+then
+    cd $CONCIERTO_APP
+else 
+    CONCIERTO_APP=$(pwd)
+fi
+
+CONDIR="$CONCIERTO_APP/.concierto"
+JAR="$CONDIR/concierto.jar"
 
 case $1 in
 
 update)
-    wget "https://www.conciert.io/release/concierto.jar" -O concierto.tempjar
-    if [ -e "concierto.tempjar" ]
+    mkdir -p $CONDIR
+    tmpfile=$(mktemp)
+    wget "https://www.conciert.io/release/concierto.jar" -O $tmpfile
+    if [ $? -eq 0 ]
     then
-        if [ -e "concierto.jar" ]
+        if [ -e "$JAR" ]
         then
-            ver="$(bb concierto.jar version)"
-            mv concierto.jar concierto-$ver.jar
+            ver="$(bb $JAR version --tag)"
+            mv $JAR "$CONDIR/concierto-$ver.jar"
         fi
         
-        mv concierto.tempjar concierto.jar
+        mv $tmpfile $JAR
     else
         echo "Didn't download concierto.jar"
     fi
@@ -49,20 +60,22 @@ starter-pack)
 ;;
 
 *)
-    if [ -e "concierto.jar" ]
+    
+    if [ -n "$CONCIERTO_HOME" ];
     then
-        bb concierto.jar "$@"
+        # for dev
+        bb --config $CONCIERTO_HOME/bb.edn -m concierto.cli "$@"
     else
-        if [ -n "$CONCIERTO_HOME" ];
+        if [ -e "$JAR" ]
         then
-            # for dev
-            bb --config $CONCIERTO_HOME/bb.edn -m concierto.cli "$@"
+            bb $JAR "$@"
         else
-            echo
-            echo "concierto.jar not found in this directory, or source in CONCIERTO_HOME env."
-            echo "'./concierto update' to get latest jar in this directory."
+            echo "Concierto not initialised."
+            echo "concierto.jar not found in $CONDIR, or source in CONCIERTO_HOME env."
+            echo "'concierto update' to get latest jar in $CONDIR."
         fi
     fi
+
 ;;
 
 esac

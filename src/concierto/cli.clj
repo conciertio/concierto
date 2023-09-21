@@ -109,7 +109,9 @@
 
 (defn- version [args]
   (let [v (read-string (slurp (io/resource "version.edn")))]
-    (core/format-out args v)))
+    (if (core/get-option args :tag)
+      (println (:tag v))
+      (core/format-out args v))))
 
 (defn- lint [args]
   (core/lint args))

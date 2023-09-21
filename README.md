@@ -6,8 +6,8 @@ It's written in Clojure using the Babashka runtime so is fast to start.
 
 Quick flavor ...
 
-    ./concierto build all --push
-    ./concierto deploy \
+    concierto build all --push
+    concierto deploy \
         --scenario cluster \
         --target stage \
         --select \ 

@@ -9,3 +9,4 @@ docs/starter.html
 debug/
 manage
 resource/version.edn
+.vscode/

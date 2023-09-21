@@ -38,7 +38,7 @@ MACHINE SELECTION
             
 Select machines with --select <key val>* also <key val>*
 
-e.g. ./concierto machines --select cluster us role api        
+e.g. concierto machines --select cluster us role api        
 
 ENVIRONMENT VARIABLES
 ---------------------
@@ -69,7 +69,7 @@ engine      - provide a default engine; docker or podman (default docker)
 extensions  - merge extensions (default true)
 remote-exec - provide a path to a file that is executed remotely on deploy                                   
 
-e.g. ./concierto set scenario myscenario
+e.g. concierto set scenario myscenario
                                     
 For more info mail contact@conciert.io
 

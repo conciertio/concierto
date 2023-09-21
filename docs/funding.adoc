@@ -1,0 +1,16 @@
+
+## Funding
+
+If you'd like to fund/donate to this project, or to acquire my time as a freelancer, then Bitcoin is the best way to do it. 
+
+Shoot me an email at ritchie@conciert.io with request details.
+
+Easy with the Bitcoin QR code ...
+
+image::concierto_donation.jpg[align=center]
+
+or the address ...
+
+    1KjGyJ5DYSKSQCctqASRHTYWHV89oEYEjT
+
+Thanks!

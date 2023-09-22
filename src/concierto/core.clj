@@ -661,10 +661,8 @@
         (shell env tmp))
       (println "File " tmpl-file "does not exist"))))
 
-(defn lint [_args]
-  (when-not (fs/exists? (targets-dir))
-    (warn "Targets dir does not exist"))
 
+(defn lint [args]
   (when-not (fs/exists? (scenarios-dir))
     (warn "Scenarios dir does not exist"))
 
@@ -672,7 +670,23 @@
     (warn "Services dir does not exist"))
 
   (when-not (fs/exists? (extensions-dir))
-    (warn "Extensions dir does not exist")))
+    (warn "Extensions dir does not exist"))
+
+  (when-not (fs/exists? (targets-dir))
+    (warn "Targets dir does not exist"))
+
+  (let [attr (gather args)]
+    (when-not (get-in attr [:access :docker])
+      (warn "access has no :docker key"))
+
+    (when-not (get-in attr [:access :docker :registry])
+      (warn "Cannot deploy without an :access :docker :registry"))
+
+    (when-not (get-in attr [:access :ssh])
+      (warn "Cannot deploy without an :access :ssh"))
+
+    (when (= (count (get attr :machines)) 0)
+      (warn "Have no machines"))))
 
 (defn init [dtable]
 
@@ -685,6 +699,7 @@
                              {:aliases {:v :verbose}
                               :coerce
                               {:verbose :boolean}})]
+
     (try
       (create-run-dir)
       (set-verbose (:verbose opts))

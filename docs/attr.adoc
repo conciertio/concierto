@@ -6,9 +6,13 @@
   :balancer {:image "mybalancer:1.0.0"}},
  :globals {:DB_PASSWORD "superduper", :DB_PORT 6379, :API_PORT 8080, :BALANCER_PORT 9000, :BBVER "1.3.182"},
  :machines
- (({:role :db, :cluster "west", :ip "10.174.25.119", :host "west-db", :added "dynamically"})
-  ({:role :balancer, :cluster "west", :ip "10.174.25.99", :host "west-bal", :added "dynamically"})),
- :clusters {:west {:db "10.174.25.119", :api ("10.174.25.128" "10.174.25.62" "10.174.25.100"), :cluster-name "west"}},
+ (({:role :db, :cluster "east", :ip "10.174.25.37", :host "east-db", :added "dynamically"}
+   {:role :db, :cluster "west", :ip "10.174.25.119", :host "west-db", :added "dynamically"})
+  ({:role :balancer, :cluster "east", :ip "10.174.25.7", :host "east-bal", :added "dynamically"}
+   {:role :balancer, :cluster "west", :ip "10.174.25.99", :host "west-bal", :added "dynamically"})),
+ :clusters
+ {:east {:db "10.174.25.37", :api ("10.174.25.131" "10.174.25.189" "10.174.25.91"), :cluster-name "east"},
+  :west {:db "10.174.25.119", :api ("10.174.25.128" "10.174.25.62" "10.174.25.100"), :cluster-name "west"}},
  :access
  {:ssh {:user "concierto", :port 22},
   :docker {:registry {:url "10.174.25.1:5000", :tls-verify false, :user "ritchie", :secret "ritchie"}}},

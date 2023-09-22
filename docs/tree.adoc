@@ -9,12 +9,12 @@
 │       └── disksize
 │           └── extend.clj
 ├── scenarios
-│   ├── cluster
-│   │   ├── api.yml
-│   │   ├── balancer.yml
-│   │   └── db.yml
-│   └── single
-│       └── dev.yml
+│   ├── single
+│   │   └── dev.yml
+│   └── tiered
+│       ├── api.yml
+│       ├── balancer.yml
+│       └── db.yml
 ├── services
 │   ├── api
 │   │   └── Dockerfile

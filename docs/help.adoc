@@ -19,8 +19,8 @@ build role      Build all services referenced by role, --push to push
 build           Build the service(s), --push to push
 push            Push the built service to registry
 deploy          Deploy over set of machines
-lint            Check for inconsistencies (TBD)
-version         Current version
+lint            Check for inconsistencies
+version         Current version, --tag show tag only
 
 EXTENSIONS
 ----------
@@ -28,7 +28,7 @@ EXTENSIONS
 mycompany disk-size            Find disk usage for selected devices
 demo lxd cluster-base-image    base Alpine with extras
 demo lxd cluster-create        create a new cluster
-demo lxd cluster-remove        remove all cluster instances
+demo lxd cluster-remove        remove cluster instance
 demo lxd cluster-remove-all    remove all cluster instances
 demo registry create           create a local registry
 

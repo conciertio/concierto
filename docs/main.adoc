@@ -71,7 +71,7 @@ Concierto provides the following functionality.
 
 === Configuration Settings
 
-    concierto set scenario cluster
+    concierto set scenario tiered
     concierto set target live
     concierto set engine podman
 
@@ -103,12 +103,12 @@ Build all services in order based on sequence in services/build.edn, then deploy
 
     concierto build all --push --target live
     concierto deploy \
-        --scenario cluster \
+        --scenario tiered \
         --target live \
         --select \ 
-            cluster live role db also \
-            cluster live role api also \
-            cluster live role balancer 
+            role db also \
+            role api also \
+            role balancer 
 
 ==== Arbitrary ssh
 
@@ -128,7 +128,7 @@ podman login {{access.docker.registry.url}}:5000 \
      -u {{access.docker.registry.user}} -p {{access.docker.registry.secret}}
 ----
 
-Run it remotely, but with pre upload templating ...
+Run it remotely, but with pre upload templating per target ...
 
 [source, bash]
 ----
@@ -158,7 +158,13 @@ Concierto revolves around the idea of *services* - code deployed as containers.
 
 Concierto defines a machine *role* as a docker compose file. That is, if docker containers are instantiated with docker-compose X.yml then that machine fullfills role X. Machines are tagged with at least 1 role.
 
-Roles are aggregated as *scenarios*. For example, a test scenario could apply machine limits; memory, cpu etc to running services, whereas a production scenario may be unlimited. Or maybe different scenarios per customer level using your app. Scenarios allow flexibily switching sets of  docker-compose files, favouring declarative verbosity over embedding template logic for multiple variations (although that's still possible).
+Roles are aggregated as *scenarios*. For example:
+
+* a test scenario could apply machine limits; memory, cpu etc to running services, whereas a production scenario may be unlimited.
+* bronze, silver, gold service level scenarios 
+* tiered roles over many machines, as opposed to a single machine and role (developer)
+
+Scenarios allow flexibily switching sets of  docker-compose files, favouring declarative verbosity over embedding template logic for multiple variation.
 
 *targets* assemble and aggregate all data that will be subsequently used in the build/deploy or any other process that could be implemented by extensions. 
 
@@ -180,7 +186,6 @@ As you can see above the target is defined by some key files ...
 [cols="1,3"]
 |===
 | access (or .clj/.edn)
-
 | A map with ssh credentials and registry details
 
 |globals (or .clj/.edn)
@@ -189,7 +194,7 @@ As you can see above the target is defined by some key files ...
 |machines (or .clj/.edn)
 |A sequence of machines, with their IP address, role, hostname and cluster, and any other searchable attributes.
 
-|services.edn (or .clj/.edn)
+|services (or .clj/.edn)
 |A map of service images/versions for the target.
 
 |hooks.clj
@@ -265,7 +270,9 @@ See <<_services_2>> instructions for details on building and pushing docker imag
 [NOTE]
 Although Docker build has it's own substitution mechanism, Concierto performs it's substitutions pre-build, and attempts to provide the {{}} templating in every possible situation and doesn't detract from existing forms when you wish to use them.
 
-One potential negative is the fact your Dockerfiles have non-standard templating and you can't run them independently. This can be solved by templating your Dockerfiles on the fly. e.g. ...
+==== Non Standard Templating?
+
+One potential negative is the fact your Dockerfiles have non-standard templating and you can't build them independently. This can be solved by templating your Dockerfiles on the fly. e.g. ...
 
 [source]
 ----
@@ -474,6 +481,9 @@ e.g. the starter-pack base image is setup with the following cloud-init spec ...
 include::../../starter-pack/extensions/demo/lxd/cloud-init-podman.yml[]
 ----
 
+[IMPORTANT]
+Obviously, the setup above is tailored to your requirements. There's no need to use a "concierto" login etc.
+
 ==== Docker Registry
     
 - Each deployment target is assumed to have a docker registry defined using the 'docker.registry' key in access.edn for a given target.
@@ -569,7 +579,7 @@ Concierto looks for api.env in the root dir of the service. api.env should be an
 
 [source,bash]
 ----
-DB_HOST={{machine.cluster-db}}
+DB_HOST={{cluster.db}}
 DB_PORT={{globals.DB_PORT}}
 DB_PASSWORD={{globals.DB_PASSWORD}}
 MY_HOST={{machine.host}}

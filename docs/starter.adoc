@@ -66,6 +66,9 @@ and you should get 2 3 tier clusters of 5 machines each.
 
 Where I go through the commands above ...
 
+[WARNING]
+The videos are slightly out of date, in videos i use the _./concierto_ command, which if you follow installation docs now is simply _concierto_.
+
 === Cluster Setup
 
 video::-l6Ea0ZEgsk[youtube,align=center]

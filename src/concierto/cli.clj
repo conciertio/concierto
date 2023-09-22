@@ -244,13 +244,18 @@ For more info mail contact@conciert.io
   ;;   :help "List service dependencies of role"}
 
    {:cmds ["build" "all"] :fn build-all
+    :coerce {:cache :boolean :push :boolean}
+    :exec-args {:cache true :push false}
     :help "Build all services listed in services/build.edn in order, --push to push"}
 
    {:cmds ["build" "role"] :fn build-role
+    :coerce {:cache :boolean :push :boolean}
+    :exec-args {:cache true :push false}
     :help "Build all services referenced by role, --push to push"}
 
-   {:cmds ["build"] :fn build :opts
-    {:coerce {:nocache :boolean :push :boolean}}
+   {:cmds ["build"] :fn build
+    :coerce {:cache :boolean :push :boolean}
+    :exec-args {:cache true :push false}
     :help "Build the service(s), --push to push"}
 
    {:cmds ["push"] :fn push
@@ -260,13 +265,13 @@ For more info mail contact@conciert.io
     :help "Deploy over set of machines"}
 
    {:cmds ["lint"] :fn lint
-    :help "Check for inconsistencies (TBD)"}
+    :help "Check for inconsistencies"}
 
    #_{:cmds ["undeploy"] :fn #(core/with-machines %1 d/undeploy)
       :help "Undeploy locally the currently running containers"}
 
    {:cmds ["version"] :fn version
-    :help "Current version"}
+    :help "Current version, --tag show tag only"}
 
    {:cmds ["divider"] :help "just print out a divider"}])
 

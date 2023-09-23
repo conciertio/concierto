@@ -6,7 +6,7 @@
   (let [file-to-exec (core/get-option args :script)]
     (if (fs/exists? file-to-exec)
       (let [tmpFile (core/template file-to-exec (core/gather args))]
-        (core/cshell (str "chmod u+x" tmpFile))
+        (core/cshell (str "chmod u+x " tmpFile))
         {:tmp-file tmpFile})
       (core/hurl (str "File " file-to-exec " does not exist")))))
 

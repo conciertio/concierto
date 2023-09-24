@@ -14,19 +14,20 @@
 (defn- list-machines [args  machine _init-val]
   (let [fields (or (core/get-option args :list)
                    [:host :ip :cluster :role])]
-    (println (str (->> fields
-                       (map #(keyword %1))
-                       (select-keys machine)
-                       vals
-                       (map #(name %1))
-                       (str/join " "))))))
+    (->> fields
+         (map #(keyword %1))
+         (select-keys machine)
+         vals
+         (map #(name %1))
+         (str/join " "))))
 
 (defn- machines [args]
   (if (core/get-option args :list)
-    (core/with-machines args list-machines)
+    (doseq [v (core/with-machines args list-machines)]
+      (println v))
     (if (core/get-option args :json)
-      (println (json/encode (flatten (:machines (core/gather args)))))
-      (core/pretty (flatten (:machines (core/gather args)))))))
+      (println (json/encode (:machines (core/gather args))))
+      (core/pretty (:machines (core/gather args))))))
 
 (defn- gather [args]
   (let [vars (core/gather args)]
@@ -36,10 +37,18 @@
   (when-let [role (core/get-option args :role)]
     (println (core/role-deps role))))
 
-(defn- ssh [args {:keys [ip host]} _init-val]
+(defn- sshx [args {:keys [ip host]} _init-val]
   (if (core/verbose?)
-    (println (str/trim (core/ssh-raw ip (str/join " " (:args args)))))
-    (println (str/trim (str host ":" (core/ssh-raw ip (str/join " " (:args args))))))))
+    (str/trim (core/ssh-raw ip (str/join " " (:args args))))
+    (str/trim (str host ":" (core/ssh-raw ip (str/join " " (:args args)))))))
+
+(defn ssh [args]
+  (doseq [v (core/with-machines args sshx)]
+    (println v)))
+
+(defn rexec [args]
+  (doseq [v (core/with-machines args remote/ext-remote remote/ext-remote-init)]
+    (println v)))
 
 (defn- deploy [args]
   (core/with-machines args d/deploy d/deploy-init))
@@ -213,7 +222,7 @@ For more info mail contact@conciert.io
    {:cmds ["gather"] :fn gather
     :help "Show all defined attributes of target"}
 
-   {:cmds ["ssh"] :fn #(core/with-machines %1 ssh)
+   {:cmds ["ssh"] :fn ssh
     :help "Execute a command over set of machines"}
 
    {:cmds ["set"] :fn conf-set
@@ -230,7 +239,7 @@ For more info mail contact@conciert.io
     :require [:script]
     :help "Run a templated script locally"}
 
-   {:cmds ["rexec"] :fn #(core/with-machines %1 remote/ext-remote remote/ext-remote-init)
+   {:cmds ["rexec"] :fn rexec
     :args->opts [:script]
     :require [:script]
     :help "Run a templated script remotely over set of machines"}

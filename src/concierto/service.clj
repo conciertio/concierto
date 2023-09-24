@@ -66,7 +66,7 @@
         build-file (core/get-option args :build-file "Dockerfile")
         key-service (keyword service)]
 
-    (core/vprint "Building with " build-file)
+    (core/vprint "Building with" build-file)
 
     (when-not (fs/exists? (core/path serviced build-file))
       (core/hurl (str "Must have " build-file " when building")))
@@ -87,6 +87,7 @@
                        " -f "
                        templated-docker
                        " .")]
+
         (core/vprint build-str)
 
         (core/cshell env build-str)

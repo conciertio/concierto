@@ -394,7 +394,37 @@
   (load-resource (path (target-dir) name)))
 
 
-(def machines load-machines)
+(def raw-machines load-machines)
+
+(defn- cluster-hook
+  "Run the attr-cluster hook if it exists and gather the data per cluster
+   This is run after filtering.
+   "
+  [machines]
+  (reduce (fn [acc cluster]
+            (assoc acc (keyword cluster)
+                   (event 'attr-cluster cluster)))
+          {}
+          (keys (group-by :cluster
+                          (flatten machines)))))
+
+(defn- machines-hook
+  "Run the attr-machine per machine and merge it with the existing machine data.
+   This is run early before any filtering, so that dynamic attributes may be
+   filtered.
+   "
+  [machines]
+  (->> machines
+       (map (fn [machine]
+              (merge machine
+                     (event 'attr-machine machine))))))
+
+(defn machines-with-hook []
+  (let [mach (raw-machines)]
+    (machines-hook mach)))
+
+
+(def machines (memoize machines-with-hook))
 
 ; MACHINE SELECTION
 
@@ -423,6 +453,13 @@
                   :else
                   (= (name v)  val)))))))
 
+(defn- long-to-str
+  "this is a hack"
+  [val]
+  (if (= (str (type val)) "class java.lang.Long")
+    (str val)
+    val))
+
 (defn select-machines
   "Split the selection criteria by OR-SEP, and for all pairs within an OR-SEP
    create filter a transducer for each pair of key/val, when all the required 
@@ -439,7 +476,7 @@
           (let [pair (partition 2 selection)
                 filters (apply comp
                                (map (fn [[selector val]]
-                                      (select-by-attr selector val)) pair))
+                                      (select-by-attr selector (long-to-str val))) pair))
                 selected-role (->> (filter #(= :role (first %1)) pair)
                                    first
                                    second)
@@ -460,42 +497,18 @@
       glbs)))
 
 (defn filter-machines [args]
-  (if-let [machines (get-opt-select args)]
-    (apply select-machines machines)
+  (if-let [selection (get-opt-select args)]
+    (apply select-machines selection)
     (select-machines)))
 
-(defn- cluster-hook
-  "Run the attr-cluster hook if it exists and gather the data per
-   cluster"
-  [machines]
-  (reduce (fn [acc cluster]
-            (assoc acc (keyword cluster)
-                   (event 'attr-cluster cluster)))
-          {}
-          (keys (group-by :cluster
-                          (flatten machines)))))
-
-(defn- machines-hook
-  "Run the attr-machine per machine and merge it with the 
-   existing machine data."
-  [machines cluster-data]
-  (->> machines
-       (map (fn [s]
-              (map (fn [machine]
-                     (let [cluster (:cluster machine)]
-                       (merge machine
-                              (event 'attr-machine machine
-                                     (get cluster-data cluster))))) s)))))
-
-(defn- attr
-  "Gather all the data."
+(defn- gather-attr
+  "Gather data from the target."
   [args]
-  (let [machines (filter-machines args)
-        cluster-data (cluster-hook machines)
+  (let [machines (flatten (filter-machines args))
         base  {:services (load-services)
                :globals (load-globals)
-               :machines (machines-hook machines cluster-data)
-               :clusters cluster-data
+               :machines machines
+               :clusters (cluster-hook machines)
                :access (load-access)
                :target (get-target)}]
     (if-let [resources (get-option args :resource)]
@@ -505,7 +518,7 @@
               base resources)
       base)))
 
-(def gather (memoize attr))
+(def gather (memoize gather-attr))
 
 (defn get-role-from-args [args]
   (or
@@ -524,6 +537,10 @@
     (let [secs (get-option args :wait 1)]
       (Thread/sleep (* secs 1000)))))
 
+(defn get-registry []
+  (get-in (load-access) [:docker :registry :url]))
+
+
 (defn with-machines
   "Iterate through the machine selection.
    Process by OR-SEP grouping, so that each has it's own pmap; then
@@ -532,8 +549,7 @@
   ([args fun]
    (with-machines args fun (fn [_a _m] {})))
   ([args fun init-fun]
-   (let [attr (gather args)
-         mach (:machines attr)
+   (let [mach (filter-machines args)
          init (init-fun args mach)]
      (->> mach
           (map (fn [group]
@@ -544,12 +560,7 @@
                    (wait args)
                    res)))
           flatten
-          (map print)
           doall))))
-
-
-(defn get-registry []
-  (get-in (load-access) [:docker :registry :url]))
 
 (defn filter-add-repo [image]
   (let [url (get-registry)]

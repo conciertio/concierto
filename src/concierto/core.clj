@@ -117,7 +117,6 @@
 
 (defn set-dry-run [dry-run]
   (when (some? dry-run)
-    (set-verbose true)
     (swap! ENV assoc :dry-run true)))
 
 (defn dry-run? []
@@ -588,7 +587,7 @@
 (defn ssh-raw [ip cmd]
   (if (dry-run?)
     (do
-      (vprint (ssh-str ip cmd))
+      (println (ssh-str ip cmd))
       "")
     (:out (shell {:out :string
                   :extra-env (System/getenv)} (ssh-str ip cmd)))))
@@ -599,7 +598,7 @@
   ([opts cmd]
    (if (dry-run?)
      (do
-       (vprint cmd)
+       (println cmd)
        "")
      (:out (shell (merge opts {:out :string}) cmd)))))
 
